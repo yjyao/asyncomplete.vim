@@ -281,8 +281,11 @@ function! s:on_change() abort
         " match sources based on the last character if it is a trigger character
         " TODO: also check for multiple chars instead of just last chars for
         " languages such as cpp which uses -> and ::
+        let l:triggered_by_char = 0
         if has_key(l:triggered_sources, l:source_name)
             let l:startcol = l:ctx['col']
+            let l:triggered_by_char = 1
+            let s:matches[l:source_name] = { 'startcol': l:startcol, 'status': 'idle', 'items': [], 'refresh': 0, 'ctx': l:ctx }
         elseif l:startidx > -1
             let l:startcol = l:startidx + 1 " col is 1-indexed, but str 0-indexed
         endif
@@ -297,7 +300,7 @@ function! s:on_change() abort
                 let s:matches[l:source_name] = { 'startcol': l:startcol, 'status': 'idle', 'items': [], 'refresh': 0, 'ctx': l:ctx }
             endif
         else
-            if has_key(s:matches, l:source_name)
+            if !l:triggered_by_char && has_key(s:matches, l:source_name)
                 unlet s:matches[l:source_name]
             endif
         endif
